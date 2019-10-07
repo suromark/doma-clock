@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>DotMatrixClock</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+		body,
+		input,
+		select,
+		button {
+			font: 18px/22px Arial, sans-serif;
+		}
+
+		body {
+			color: white;
+			background-color: black;
+			text-align: center;
+		}
+
+		div {
+			display: inline-block;
+			width: 20em;
+			margin: 1em;
+			margin-top: 2em;
+			text-align: center;
+			background-color: #333;
+			padding: 1em;
+
+		}
+
+		input,
+		select,
+		button {
+			text-align: center;
+			background-color: #666;
+			border: none;
+			color: white;
+			border-radius: 0.3em;
+		}
+
+		button {
+			background-color: green;
+		}
+
+		h1 {
+			color: green;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>
+		DotMatrixClock
+	</h1>
+	<form action="#">
+		<div>
+			<p><button onclick="clocker.end_config(event);">End Config</button></p>
+		</div>
+
+		<div>
+			<p>Brightness</p>
+			<p>
+				<input type="range" name="brite" step="1" value="4" min="0" max="7" onchange="clocker.send_this(this)"
+					style="width: 80%;" />
+			</p>
+			<p>Display Mode</p>
+			<p>
+				<select name="mode" id="mode" size="1" onchange="clocker.send_this(this)">
+					<option value="1">Countdown</option>
+					<option value="0">Scroller</option>
+					<option value="2">Clock</option>
+				</select>
+			</p>
+			<p>Clock Style</p>
+			<p>
+				<select name="cstyle" id="cstyle" size="1" onchange="clocker.send_this(this)">
+					<option value="0">31 Mo 01:02</option>
+					<option value="1">23:59:59</option>
+					<option value="2">23:59</option>
+					<option value="3">Mo 23:59:59</option>
+					<option value="4">2019-12-31 23:59</option>
+					<option value="5">Mo 31 Dec 23:59:59</option>
+					<option value="6">2019 Dec 31  23:59</option>
+				</select>
+			</p>
+			<p>Current Time</p>
+			<p>
+				<input type="text" disabled="disabled" name="current_time" value="Enable Javascript!" />
+			</p>
+			<p>
+				<button onclick="clocker.use_now(event);">T+5:00 to deadline form</button>
+			</p>
+
+		</div>
+
+		<div>
+			<p>Deadline</p>
+			<p>
+				<select name="yyyy" size="1"></select>
+				<select name="mm" size="1">
+					<option value="01">Jan</option>
+					<option value="02">Feb</option>
+					<option value="03">Mar</option>
+					<option value="04">Apr</option>
+					<option value="05">Mai</option>
+					<option value="06">Jun</option>
+					<option value="07">Jul</option>
+					<option value="08">Aug</option>
+					<option value="09">Sep</option>
+					<option value="10">Okt</option>
+					<option value="11">Nov</option>
+					<option value="12">Dez</option>
+				</select>
+				<select name="dd" size="1"></select>
+			</p>
+			<p>
+				<select name="hh" size="1"></select>
+				<select name="ii" size="1"></select>
+				<select name="ss" size="1"></select>
+			</p>
+
+			<p><button onclick="clocker.send_countdown(event);">Set Clock and Deadline</button></p>
+			<p><input type="text" name="status" value="" disabled="disabled" /></p>
+
+		</div>
+		<div>
+			<p>Scrolling Speed</p>
+			<p>
+				<input type="range" name="sdelay" step="1" value="20" min="0" max="255" onchange="clocker.send_this(this)"
+					style="width: 80%;" />
+			</p>
+
+			<p>Scrolling Lines (max. 2048 chars)</p>
+			<textarea name="scroller" cols=30 rows=10 onkeyup="clocker.scrollerinfo()"></textarea>
+			<br />
+			<span style="font-size: 50%" id="i_scrollsize"></span>
+			<p>
+				<button onclick="clocker.send_scroller(event);">Set Scroller Text</button>
+			</p>
+		</div>
+
+	</form>
+	<script type="text/javascript">
+		var clocker = {
+			'dtime': false
+			,
+			'etime': false
+			,
+			'ctime': false
+			,
+			'cb': {} // config values buffer
+			,
+			'end_config': function (ev) {
+				var eve = ev || window.event;
+				eve.preventDefault();
+
+				var sxhr = new XMLHttpRequest();
+				sxhr.open("GET", "./set?key=done&val=done");
+				sxhr.addEventListener('load', clocker.feedback);
+				sxhr.send();
+			}
+			,
+			'scrollerinfo' : function () {
+				clocker.scrolltext = document.forms[0].scroller.value;
+				document.getElementById('i_scrollsize').innerHTML = clocker.scrolltext.length.toString(10) + "/2048";
+				return true;
+			}
+			,
+			'send_this': function (el) {
+				var sxhr = new XMLHttpRequest();
+				sxhr.open("GET", "./set?key=" + el.name + "&val=" + encodeURIComponent(el.value));
+				sxhr.addEventListener('load', clocker.feedback);
+				sxhr.send();
+			}
+			,
+			'send_scroller': function (ev) {
+				var eve = ev || window.event;
+				eve.preventDefault();
+				clocker.txp = 0;
+				clocker.scrolltext = document.forms[0].scroller.value;
+				clocker.send_scroller_loop();
+			}
+			,
+			'send_scroller_loop': function () {
+				var subs = clocker.scrolltext.slice(clocker.txp, clocker.txp + 256); // extract a segment
+				var sxhr = new XMLHttpRequest();
+				sxhr.open("GET", "./set?key=scroller&pos=" + clocker.txp.toString(10) + "&val=" + encodeURIComponent(subs));
+				sxhr.addEventListener('load', clocker.scroller_next);
+				sxhr.send();
+			}
+			,
+			'scroller_next': function (event) {
+				if (event.target.status >= 200 && event.target.status < 300) {
+					// send next piece
+					clocker.txp += 256;
+					if (clocker.txp < 2048 && clocker.txp < clocker.scrolltext.length ) {
+						clocker.send_scroller_loop();
+					} else {
+						// end reached, send save command
+						clocker.send_scroller_end();
+					}
+				} else {
+					document.forms[0].status.value = 'XHR ERROR: ' + event.target.statusText;
+				}
+			}
+			,
+			'send_scroller_end' : function() {
+				var sxhr = new XMLHttpRequest();
+				sxhr.open("GET", "./set?key=sc_ended&val=0");
+				sxhr.addEventListener('load', clocker.feedback);
+				sxhr.send();
+
+			}
+			,
+			'send_countdown': function (ev) {
+				var eve = ev || window.event;
+				eve.preventDefault();
+
+				if (clocker.etime === false || clocker.ctime === false) {
+					alert("Invalid data - check please");
+					return false;
+				}
+
+				var sxhr = new XMLHttpRequest();
+				sxhr.open("GET", "./set?key=times&val=" + encodeURIComponent(clocker.ctime + clocker.etime));
+				sxhr.addEventListener('load', clocker.feedback);
+				sxhr.send();
+			}
+			,
+			'feedback': function (event) {
+				if (event.target.status >= 200 && event.target.status < 300) {
+					document.forms[0].status.value = event.target.responseText;
+					clocker.echo_config(event.target.responseText);
+				} else {
+					document.forms[0].status.value = 'XHR ERROR: ' + event.target.statusText;
+				}
+			}
+			,
+			'init': function () {
+				this.tick();
+				var theNow = new Date();
+				var fel = document.forms[0];
+				for (var i = theNow.getFullYear(); i < 30 + theNow.getFullYear(); i++) {
+					var nopt = document.createElement('option');
+					nopt.value = i.toString(10);
+					nopt.innerHTML = nopt.value;
+					fel.yyyy.appendChild(nopt);
+				}
+				for (var i = 1; i <= 31; i++) {
+					var nopt = document.createElement('option');
+					nopt.value = ("00" + i.toString(10)).slice(-2);
+					nopt.innerHTML = nopt.value;
+					fel.dd.appendChild(nopt);
+				}
+				for (var i = 0; i <= 23; i++) {
+					var nopt = document.createElement('option');
+					nopt.value = ("00" + i.toString(10)).slice(-2);
+					nopt.innerHTML = nopt.value;
+					fel.hh.appendChild(nopt);
+				}
+				for (var i = 0; i <= 59; i++) {
+					var nopt = document.createElement('option');
+					nopt.value = ("00" + i.toString(10)).slice(-2);
+					nopt.innerHTML = nopt.value;
+					fel.ii.appendChild(nopt);
+				}
+				for (var i = 0; i <= 59; i++) {
+					var nopt = document.createElement('option');
+					nopt.value = ("00" + i.toString(10)).slice(-2);
+					nopt.innerHTML = nopt.value;
+					fel.ss.appendChild(nopt);
+				}
+				var sxhr = new XMLHttpRequest();
+				sxhr.open("GET", "./scroll.txt");
+				sxhr.addEventListener('load', clocker.init_done);
+				sxhr.send();
+			}
+			,
+			'init_done': function (event) {
+				if (event.target.status >= 200 && event.target.status < 300) {
+					document.forms[0].scroller.value = event.target.responseText.split("\x00").join(""); // remove NUL chars
+				} else {
+					document.forms[0].status.value = 'XHR ERROR: ' + event.target.statusText;
+				}
+
+				var sxhr = new XMLHttpRequest();
+				sxhr.open("GET", "./config");
+				sxhr.addEventListener('load', clocker.feedback);
+				sxhr.send();
+			}
+			,
+			'use_now': function (ev) {
+				var eve = ev || window.event;
+				eve.preventDefault();
+
+				var theNow = new Date();
+				theNow.setTime(theNow.getTime() + (5 * 60 * 1000));
+				var fel = document.forms[0];
+				fel.yyyy.value = theNow.getFullYear().toString(10);
+				fel.mm.value = ("00" + (1 + theNow.getMonth()).toString(10)).slice(-2);
+				fel.dd.value = ("00" + theNow.getDate().toString(10)).slice(-2);
+				fel.hh.value = ("00" + theNow.getHours().toString(10)).slice(-2);
+				fel.ii.value = ("00" + theNow.getMinutes().toString(10)).slice(-2);
+				fel.ss.value = ("00" + theNow.getSeconds().toString(10)).slice(-2);
+			}
+			,
+			'echo_config': function (rawjson) {
+				var fel = document.forms[0];
+				try {
+					var conf = JSON.parse(rawjson);
+					clocker.cb = conf;
+					fel.yyyy.value = conf.dedl.slice(0, 4);
+					fel.mm.value = conf.dedl.slice(4, 6);
+					fel.dd.value = conf.dedl.slice(6, 8);
+					fel.hh.value = conf.dedl.slice(8, 10);
+					fel.ii.value = conf.dedl.slice(10, 12);
+					fel.ss.value = conf.dedl.slice(12);
+					fel.brite.value = conf.BR;
+					fel.mode.value = conf.M;
+					fel.cstyle.value = conf.CS;
+					fel.sspeed = conf.SCD;
+					clocker.scrollerinfo();
+				} catch (e) {
+					return false;
+				}
+
+			}
+			,
+			'tick': function () {
+				var theNow = new Date();
+				var fel = document.forms[0];
+				clocker.ctime =
+					theNow.getFullYear().toString(10)
+					+ ("00" + (1 + theNow.getMonth()).toString(10)).slice(-2)
+					+ ("00" + theNow.getDate().toString(10)).slice(-2)
+					+ ("00" + theNow.getHours().toString(10)).slice(-2)
+					+ ("00" + theNow.getMinutes().toString(10)).slice(-2)
+					+ ("00" + theNow.getSeconds().toString(10)).slice(-2)
+					;
+				fel.current_time.value = clocker.ctime;
+				fel.status.value = "";
+
+				try {
+					var ziel = new Date();
+					ziel.setFullYear(fel.yyyy.value);
+					ziel.setMonth(parseInt(fel.mm.value) - 1);
+					ziel.setDate(fel.dd.value);
+					ziel.setHours(fel.hh.value);
+					ziel.setMinutes(fel.ii.value);
+					ziel.setSeconds(fel.ss.value);
+
+					clocker.etime =
+						ziel.getFullYear().toString(10)
+						+ ("00" + (1 + ziel.getMonth()).toString(10)).slice(-2)
+						+ ("00" + ziel.getDate().toString(10)).slice(-2)
+						+ ("00" + ziel.getHours().toString(10)).slice(-2)
+						+ ("00" + ziel.getMinutes().toString(10)).slice(-2)
+						+ ("00" + ziel.getSeconds().toString(10)).slice(-2)
+						;
+
+					clocker.delta(theNow, ziel);
+				} catch (e) {
+					fel.status.value = "Error processing";
+				}
+				window.setTimeout(clocker.tick, 500);
+			}
+			,
+			'delta': function (theNow, ziel) {
+				try {
+					var fel = document.forms[0];
+					clocker.dtime = false;
+					var diff = Math.floor(ziel.getTime() / 1000 - theNow.getTime() / 1000); // milli to seconds
+					if (diff < 0) {
+						throw 'End Passed';
+					}
+					clocker.dtime =
+						("0000" + (Math.floor(diff / 86400) % 9999)).slice(-4)
+						+ ("00" + (Math.floor(diff / 3600) % 24).toString(10)).slice(-2)
+						+ ("00" + (Math.floor(diff / 60) % 60).toString(10)).slice(-2)
+						+ ("00" + (diff % 60).toString(10)).slice(-2);
+					fel.status.value = clocker.dtime;
+				} catch (e) {
+					document.forms[0].status.value = e;
+				}
+
+			}
+		}
+		clocker.init();
+
+	</script>
+</body>
+
+</html>

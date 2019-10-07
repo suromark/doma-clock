@@ -1,0 +1,14 @@
+>>>>>>> This set of lines is stored in the ESP flash memory chip. The flash memory will eventually give in after too many write operations, but usually it's good for several thousand writes or more.
+<<<<||||>>>>
+All other settings are held in the RAM of the real time clock module.
+They can be altered as many times as you like, but will get lost if the clock battery runs out or is removed while the system is not powered externally.
+This text can be up to 2048 characters long.
+That's pretty long.
+This line started at position 500 (or about a quarter into the available space), so you probably won't exhaust the buffer any time soon unless you want to bore people quite a bit.
+Of couse you can expand the buffer by recompiling the source after altering SCROLLER_BUFFER_SIZE in the file myglobals.h but don't overdo it because the ESP needs some RAM for itself to do the wifi and webserver stuff (among other things).
+We are only just about halfway into the regular buffer, with the 1024 characters mark coming up now: <<|>>
+This message will repeat in 5
+4
+3
+2
+1

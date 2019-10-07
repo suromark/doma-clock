@@ -1,0 +1,10 @@
+FIX REQUIRED FOR Chronos LIBRARY TO COMPILE WITH ESP 2.4 :
+
+In File:
+libdeps/ ... Chronos_ID920/src/chronosinc/timeExtInc.h
+
+Change the include:
+#include <Time.h>
+
+into:
+#include <TimeLib.h>
