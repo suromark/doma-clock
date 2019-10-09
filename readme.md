@@ -38,3 +38,5 @@ The matrix modules are wired in series. The VCC and GND lines effectively run pa
 **NOTE: Be aware that full brightness of a single 4-blocks red LED board can exceed 1 A consumption (most of which will be converted to useless heat since it's overdriving the LEDs) so a test run of all 3 will overwhelm the usual 5V / 2A chargers.**
 
 I do recommend (if you have the patience and soldering skill for fiddling with SMD components) to replace the default 10kΩ current setting resistors of the MAX7219 modules with 40-68 kΩ ones that will significantly lower both heat and power demand of the LED display ...
+
+![Replaced resistor](/docs/img/2019-09-29_181650_IMG_web.jpg)
