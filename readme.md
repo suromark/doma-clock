@@ -21,17 +21,17 @@ It's also most likely a hodgepodge of coding sins, but hey ... everyone has to s
 
 as seen from Wemos D1:
 
-D0 <- R560 <- RTC SQ // 1 HZ pulse in
-D1 -> R560 -> RTC SCL // I2C Clock
-D2 -> R560 -> RTC SDA // I2C Data
-D3 -> R560 -> Push Button -> GND
-D4 (internal LED)
-D5 -> R560 -> first Matrix CLK
-D6 (MISO, back channel Matrix, not used)
-D7 -> R560 -> first Matrix DI
-D8 -> R560 -> first Matrix CS
-GND -> Matrix GND, RTC GND
-5V -> Matrix VCC, RTC VCC
+- D0 <- R560 <- RTC SQ // 1 HZ pulse in
+- D1 -> R560 -> RTC SCL // I2C Clock
+- D2 -> R560 -> RTC SDA // I2C Data
+- D3 -> R560 -> Push Button -> GND
+- D4 (internal LED)
+- D5 -> R560 -> first Matrix CLK
+- D6 (MISO, back channel Matrix, not used)
+- D7 -> R560 -> first Matrix DI
+- D8 -> R560 -> first Matrix CS
+- GND -> Matrix GND, RTC GND
+- 5V -> Matrix VCC, RTC VCC
 
 The matrix modules are wired in series. The VCC and GND lines effectively run parallel through all modules, while each module's last DOUT / CS / CLK pin gets connected to the next module's first DIN / CS / CLK pin.
 
