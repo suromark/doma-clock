@@ -13,7 +13,7 @@ It's also most likely a hodgepodge of coding sins, but hey ... everyone has to s
 - 1x DS1307 RTC module with battery and EEPROM
 - Push Button (Normally Open type)
 - Resistors 560 Ω (optional, to protect the ESP I/O pins against accidental reverse flow)
-- Resistors 40-60 kΩ (optional, to modify the LED matrix current from its far too high default configuration)
+- Resistors 40-68 kΩ (optional, to modify the LED matrix current from its far too high default configuration)
 - Various wires and connectors (if desired)
 - Power supply 5 volts, max. ampere rating depends on whether you've throttled the MAX7219 modules with the resistors or not ...  
 
