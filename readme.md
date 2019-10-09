@@ -1,5 +1,7 @@
 # DoMa-Clock
 
+![Clock without enclosure](/docs/img/2019-10-06_215001_IMG_web.jpg)
+
 The Dot Matrix Clock thing by suromark. It's a countdown clock, a regular clock, and a text scroller. Uses MAX7219 8x8 LED displays driven by an ESP8266 microcontroller to do its thing. It uses PlatformIO and various libraries (check their license info).
 
 It's also most likely a hodgepodge of coding sins, but hey ... everyone has to start somewhere.
