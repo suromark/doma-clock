@@ -10,6 +10,13 @@ It's also most likely a hodgepodge of coding sins, but hey ... everyone has to s
 
 **NOTE: The index.htm page of the built-in config web server is stored in the SPIFFS filesystem, but I didn't bother to add an integrated first-run setup routine since I knew I'd flash its contents via PlatformIO anyway - so please do not just flash the program binary but also run PlatformIO's "Upload File System image" to make sure the Flash memory of the ESP is properly initialized.**
 
+## Operation once it's running
+
+- Short press ( < 1 sec ) the button on D3 to cycle between scrolling text, clock and countdown
+- Long press ( 1-3 sec ) the button and release it while the LED of the ESP is lit to enter config mode. It will launch its own access point and display the login data and the IP address you need to enter in the browser of the device that is connected to that AP. It will read the browser's date/time value, and pressing the button labelled "Set Clock and Deadline" will (doh) set clock and deadline to the values shown in the form. Leave the config menu by pressing the button "End Config".
+- Longer press (holding down beyond 3 sec.) will clear the ESP LED and start cycling through the brightness settings of the display. I'm using 0-7 of the 16 available in the code. It's usually bright enough for indoor use.
+
+
 ## Bill of materials
 
 - 1x Wemos D1 mini ESP-8266 microcontroller
