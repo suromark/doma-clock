@@ -407,20 +407,18 @@ void progressCountdown()
     }
 }
 
+// Print the current countdown status: typically 12-13 chars + NULL in format: DDD HH:II:SS
 void doCountdownDisplay()
 {
-    static char outbuff[20]; // oversized, typically 12-13 positions+NULL: DDD HH:II:SS
-
-    // 8 x 8x8 Matrix
 
     countdown = sanitizeTime(countdown); // no harm in over-doing but a few clock cycles
 
-    snprintf(outbuff, sizeof(outbuff), "%03d %02d:%02d:%02d", countdown.days, countdown.hours, countdown.minutes, countdown.seconds);
+    snprintf(myma._textbuffer, sizeof(myma._textbuffer), "%03d %02d:%02d:%02d", countdown.days, countdown.hours, countdown.minutes, countdown.seconds);
     myma.setX(0);
     myma.ClearAfterScroll();
-    myma.SetTextBuffer(outbuff);
     myma.SetLevel(brite);
-    myma.ShowCompact(0);
+    myma.RecalcCenter();
+    myma.ShowCompactCentered(0);
 }
 
 // does carry operations on countdown time structure in case one is negative or bigger than permitted
@@ -544,7 +542,8 @@ void doClock()
             snprintf(myma._textbuffer, sizeof(myma._textbuffer), "%04d %s %02d  %02d:%02d",
                      year(), mon[month()], day(), hour(), minute());
 
-        myma.ShowCompact(0);
+        myma.RecalcCenter();
+        myma.ShowCompactCentered(0);
     }
 }
 
