@@ -31,9 +31,10 @@ void MyMatrix::setX(int16_t x)
 // ( clear pixelbuffer then output the textbuffer using the new offset )
 void MyMatrix::ShowScroll()
 {
-  if (_nextStep - millis() >= _stepDelay)
+  _millis = millis();
+  if (_nextStep - _millis >= _stepDelay)
   {
-    _nextStep = millis() + _stepDelay;
+    _nextStep = _millis + _stepDelay;
     _offset--;
     Show(0);
   }
@@ -118,6 +119,10 @@ void MyMatrix::SetTextBuffer(char *freitext)
 {
   strlcpy(_textbuffer, freitext, sizeof(_textbuffer)); //textcopy
   RecalcCenter();
+}
+
+void MyMatrix::ClearTextBuffer() {
+  _textbuffer[0] = '\0';
 }
 
 void MyMatrix::RecalcCenter()
@@ -263,6 +268,7 @@ void MyMatrix::ShowCompact(unsigned int del)
 
   int16_t xpos = _offset;
 
+ _millis = millis();
   matrix->fillScreen(LOW);
   matrix->setCursor(0, 0);
 
@@ -289,7 +295,7 @@ void MyMatrix::ShowCompact(unsigned int del)
 
     // Flashing seconds colon
 
-    if (millis() % 1000 > 500 && _textbuffer[i] == ':')
+    if (_millis % 1000 > 500 && _textbuffer[i] == ':')
     {
       // show colon only 0.5 out of every 1 second
     }
@@ -318,6 +324,8 @@ void MyMatrix::ShowCompactCentered(unsigned int del)
 {
 
   int16_t xpos = 0;
+
+_millis = millis();
 
   matrix->fillScreen(LOW);
   matrix->setCursor(0, 0);
@@ -353,7 +361,7 @@ void MyMatrix::ShowCompactCentered(unsigned int del)
 
     // Flashing seconds colon
 
-    if (millis() % 1000 > 500 && _textbuffer[i] == ':')
+    if (_millis % 1000 > 500 && _textbuffer[i] == ':')
     {
       // show colon only 0.5 out of every 1 second
     }

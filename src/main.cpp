@@ -230,7 +230,7 @@ void loop()
 }
 
 // toggle through regular display modes (NO CONFIG)
-// can break out of config display to show preview
+// can break out of config display to show the current settings as preview
 void doNextMode()
 {
     if (displaymode == SCROLLER)
@@ -245,8 +245,14 @@ void doNextMode()
     }
     if (displaymode == CLOCK)
     {
+        if( clockStyle < CLOCKSTYLE_MAX ) {
+            clockStyle++;
+            saveClockstyleToRam();
+            return;
+        } else {
         switchToScroller();
         return;
+        }
     }
     switchToClock(); // default action allows to hide/preview out of the config scroller
     return;
@@ -267,7 +273,7 @@ void doBrite()
 void switchToCountdown()
 {
     myma.ClearAfterScroll();
-    myma.SetTextBuffer("");
+    myma.ClearTextBuffer();
     displaymode = COUNTDOWN;
 }
 
@@ -509,6 +515,7 @@ void doCountdownEnd()
 void switchToClock()
 {
     displaymode = CLOCK;
+    clockStyle = 0;
     myma.ClearAfterScroll();
     myma.setX(0);
 }
@@ -516,9 +523,10 @@ void switchToClock()
 void doClock()
 {
     static unsigned long lastDisplay = 0;
-    if (thisTick - lastDisplay >= 500)
+    if (thisTick - lastDisplay >= 250)
     {
         lastDisplay = thisTick;
+        // Style 0
         snprintf(myma._textbuffer, sizeof(myma._textbuffer), "%02d. %s %02d:%02d", day(), wd[weekday()], hour(), minute());
 
         if (clockStyle == 1)

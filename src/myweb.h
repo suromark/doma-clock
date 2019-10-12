@@ -138,7 +138,8 @@ bool handleFileRead(String path)
     if (SPIFFS.exists(path))
     {                                                               // If the file exists
         File file = SPIFFS.open(path, "r");                         // Open it
-        size_t sent = mycp_webServer.streamFile(file, contentType); // And send it to the client
+        // size_t sent = mycp_webServer.streamFile(file, contentType); // And send it to the client
+        mycp_webServer.streamFile(file, contentType); // And send it to the client
         file.close();                                               // Then close the file again
         return true;
     }
