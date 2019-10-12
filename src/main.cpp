@@ -45,6 +45,7 @@ void leaveConfig();
 void switchToConfig();
 void doConfig();
 void switchToClock();
+void switchToClockKeepStyle();
 void doClock();
 void switchToScroller();
 void doScroller();
@@ -151,7 +152,7 @@ void setup()
     // recover the stored mode after initial scroll has passed
     if (displaymode == CLOCK)
     {
-        myma.SetAfterScroll(switchToClock);
+        myma.SetAfterScroll(switchToClockKeepStyle);
     }
     if (displaymode == COUNTDOWN)
     {
@@ -512,12 +513,16 @@ void doCountdownEnd()
     }
 }
 
-void switchToClock()
-{
+void switchToClockKeepStyle() {
     displaymode = CLOCK;
-    clockStyle = 0;
     myma.ClearAfterScroll();
     myma.setX(0);
+}
+
+void switchToClock()
+{
+    clockStyle = 0;
+    switchToClockKeepStyle();
 }
 
 void doClock()
@@ -673,8 +678,8 @@ bool readFromRTC()
     m = Rtc.GetMemory(MYRTCRAM_CLOCKSTYLE);
     clockStyle = constrain(m, 0, CLOCKSTYLE_MAX); // Clockstyle limit
 
-    Serial.print("ClockStyle = ");
-    Serial.println(m);
+    Serial.print("Stored ClockStyle = ");
+    Serial.println(clockStyle);
 
     // Countdown DateTime String
     Rtc.GetMemory(MYRTCRAM_COUNTDOWN, (uint8_t *)inbuf, MYRTCRAM_COUNTDOWN_SIZE); // pass inbuf as pointer to the first byte in the char array
