@@ -104,8 +104,8 @@ void setup()
 
     led.activate(INTERNAL_LED, LOW, HIGH);
 
-    myma.SetLevel(brite); // Use a value between 0 and 15 for brightness, but 0-7 usually suffices and uses less power
-    myma.runInit(1);      // set rotation of panels (adjust to your modules), and do a bit of boot deco
+    myma.SetLevel(brite);        // Use a value between 0 and 15 for brightness, but 0-7 usually suffices and uses less power
+    myma.runInit(panelRotation); // set rotation of panels (adjust file data/orient.txt to your modules' layout), and do a bit of boot deco
     myma.SetTextBuffer(m_boot);
     myma.ShowCompact(50);
     delay(500);
@@ -130,6 +130,7 @@ void setup()
     }
     else
     {
+        myma.setRotationFromFile();
         myma.SetTextBuffer(m_fsok);
         myma.ShowCompact(100);
         delay(500);
@@ -246,13 +247,16 @@ void doNextMode()
     }
     if (displaymode == CLOCK)
     {
-        if( clockStyle < CLOCKSTYLE_MAX ) {
+        if (clockStyle < CLOCKSTYLE_MAX)
+        {
             clockStyle++;
             saveClockstyleToRam();
             return;
-        } else {
-        switchToScroller();
-        return;
+        }
+        else
+        {
+            switchToScroller();
+            return;
         }
     }
     switchToClock(); // default action allows to hide/preview out of the config scroller
@@ -513,7 +517,8 @@ void doCountdownEnd()
     }
 }
 
-void switchToClockKeepStyle() {
+void switchToClockKeepStyle()
+{
     displaymode = CLOCK;
     myma.ClearAfterScroll();
     myma.setX(0);

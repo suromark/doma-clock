@@ -2,6 +2,7 @@
 #include <SPI.h>
 #include <Adafruit_GFX.h>
 #include <Max72xxPanel.h>
+#include <FS.h>
 
 #include "MyMatrix.h"
 
@@ -93,11 +94,11 @@ void MyMatrix::display()
   matrix->write();
 }
 
-void MyMatrix::runInit(byte panelRotation)
+void MyMatrix::runInit(byte rota)
 {
   for (uint8_t i = 0; i < (_dispHor * _dispVert); i++)
   {
-    matrix->setRotation(i, panelRotation);
+    matrix->setRotation(i, constrain(rota, 0, 3));
   }
 
   /* Teststreifen */
@@ -106,9 +107,27 @@ void MyMatrix::runInit(byte panelRotation)
   for (int16_t i = 0; i < matrix->width(); i++)
   {
     matrix->drawLine(i, 0, i, matrix->height(), HIGH);
-    matrix->drawLine(i-2, 0, i-2, matrix->height(), LOW);
+    matrix->drawLine(i - 2, 0, i - 2, matrix->height(), LOW);
     matrix->write();
     delay(20);
+  }
+}
+
+void MyMatrix::setRotationFromFile()
+{
+
+  byte rota;
+  int16_t numRead = 0;
+  File file = SPIFFS.open("/orient.txt", "r");
+  if (file)
+  {
+    while (file.available() && (numRead < (_dispHor * _dispVert)))
+    {
+      rota = file.read() - '0'; // translate ascii chars 0,1,2,3 to numeric values 0,1,2,3
+      matrix->setRotation(numRead, constrain(rota, 0, 3));
+      numRead++;
+    }
+    file.close();
   }
 }
 
@@ -121,7 +140,8 @@ void MyMatrix::SetTextBuffer(char *freitext)
   RecalcCenter();
 }
 
-void MyMatrix::ClearTextBuffer() {
+void MyMatrix::ClearTextBuffer()
+{
   _textbuffer[0] = '\0';
 }
 
@@ -139,18 +159,21 @@ void MyMatrix::RecalcCenter()
       break;
     }
     xpos += 6; // start of next char non-prop
-    if (xpos < _maxX )
+    if (xpos < _maxX)
     {
-      _buffer_pix_width = xpos; 
-    } else {
+      _buffer_pix_width = xpos;
+    }
+    else
+    {
       _buffer_pix_width = _maxX;
     }
 
-    if( xpos_prop > _maxX ) {
+    if (xpos_prop > _maxX)
+    {
       _buffer_pix_width_prop = _maxX;
       break; // if the proportional end is reached, then the non-prop has already done so too, so exit
     }
-    
+
     xpos_prop = xpos_prop + 6 + proportional_compensate_pre(_textbuffer[i]) + proportional_compensate_post(_textbuffer[i]);
   }
 }
@@ -253,7 +276,7 @@ int16_t MyMatrix::proportional_compensate_post(char c)
   if (c == ':')
     return -2;
 
-  if ( c == '.' || c == 'k' || c == 'i' || c == 'l' || c == '(' || c == ')')
+  if (c == '.' || c == 'k' || c == 'i' || c == 'l' || c == '(' || c == ')')
     return -1;
 
   return 0;
@@ -268,7 +291,7 @@ void MyMatrix::ShowCompact(unsigned int del)
 
   int16_t xpos = _offset;
 
- _millis = millis();
+  _millis = millis();
   matrix->fillScreen(LOW);
   matrix->setCursor(0, 0);
 
@@ -325,14 +348,12 @@ void MyMatrix::ShowCompactCentered(unsigned int del)
 
   int16_t xpos = 0;
 
-_millis = millis();
+  _millis = millis();
 
   matrix->fillScreen(LOW);
   matrix->setCursor(0, 0);
 
   matrix->setIntensity(_hell);
-
-  
 
   if (_buffer_pix_width_prop < _maxX)
   {

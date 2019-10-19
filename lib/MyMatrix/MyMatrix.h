@@ -27,6 +27,7 @@ public:
     MyMatrix(int8_t pCS, int8_t numHor, int8_t numVert);
     char _textbuffer[512]; // should suffice for most use cases, can be set bigger at the cost of free RAM
     void SetTextBuffer(char *sometext); // copy any text to _textbuffer for display
+    void setRotationFromFile(); // Read SPIFFS file orient.txt which needs to contain rotation values (as chars 0,1,2,3)
     void ClearTextBuffer(); // set the first char of _textbuffer to \0
     void RecalcCenter(); // Calculate the pixel width of textbuffer for prop and non-prop display
     void SetLevel(uint8_t hell); // Set the brightness (range 0-7 is adequate, 0-31 is the Max7219 maximum)
@@ -39,7 +40,7 @@ public:
     void SetScroll( unsigned long stepDelay ); // begin a new scrolling text with a certain step delay (ms)
     void setX( int16_t x );
     void ShowScroll(); // check if Delay is up, if so: move the display by 1 pixel and repeat
-    void runInit(byte panelRotation); // define the rotation 0-3 of all panels (hardware dependant)
+    void runInit(byte panelRotation); // define the rotation 0-3 of panels (hardware dependant)
     void Fill( bool f ); // Fill the whole display with On or Off 
     void display(); // write the internal buffer to the actual dot matrix ICs
     void SetScrollDelay( unsigned long stepDelay ); // change the ms between 1px scroll steps

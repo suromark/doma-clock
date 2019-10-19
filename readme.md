@@ -8,7 +8,16 @@ This is a hobby project, a learning-by-doing experience, and it does not come wi
 
 It's also most likely a hodgepodge of coding sins, but hey ... everyone has to start somewhere.
 
+## Initial setup/configuration
+
 **NOTE: The index.htm page of the built-in config web server is stored in the SPIFFS filesystem, but I didn't bother to add an integrated first-run setup routine since I knew I'd flash its contents via PlatformIO anyway - so please do not just flash the program binary but also run PlatformIO's "Upload File System image" to make sure the Flash memory of the ESP is properly initialized.**
+
+- The orientation of the dot matrix displays is stored in the file data/orient.txt
+- Use characters 0...3 to set the rotation. This depends on the modules you bought. I have encountered two variations of the 4-in-a-row type that require either 1 or 3 for the display to appear right side up.
+- Each char in the file corresponds to a 8x8 matrix, in order of wiring. So the first char is the first matrix, 2nd is 2nd, and so on. 
+- If there are more displays than characters in the file, the extra displays will be initialized with a default rotation of 1 (see myglobals.h -> panelRotation to alter that value);
+- If there are more characters in the file than displays, the extra characters will be ignored.
+- Limit is defined in myglobals.h -> numberOfHorizontalDisplays and numberOfVerticalDisplays
 
 ## Operation once it's running
 

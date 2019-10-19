@@ -76,6 +76,5 @@ char m_fserr[] = "Filesys ERR";
 char m_info[] = "Short press to cycle display. Long press to activate WiFi config. Longer hold to cycle brightness.";
 char m_i2c[] = "I2C Communication error with clock module";
 char m_clock[] = "Clock Error! Check battery and re-run config!";
-
 #define SCROLLER_BUFFER_SIZE 2048
 char scrollerbuffer[1 + SCROLLER_BUFFER_SIZE] = "No config found.\nLong press button to start config.\nThis message will repeat.\n###########"; // this can contain multiple lines separated by CR
