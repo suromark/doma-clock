@@ -23,6 +23,15 @@ void MyMatrix::Fill(bool f)
   matrix->fillScreen(f);
 }
 
+void MyMatrix::reconnect() {
+  // matrix->shutdown(true);
+  // matrix->shutdown(false);
+  SPI.endTransaction();
+  SPI.end();
+  SPI.begin();
+  SPI.beginTransaction(SPISettings(500000, MSBFIRST, SPI_MODE0)); // rather bruteforcing, not sure if that's a good idea
+}
+
 void MyMatrix::setX(int16_t x)
 {
   _offset = x;

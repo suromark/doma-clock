@@ -44,6 +44,7 @@ public:
     void Fill( bool f ); // Fill the whole display with On or Off 
     void display(); // write the internal buffer to the actual dot matrix ICs
     void SetScrollDelay( unsigned long stepDelay ); // change the ms between 1px scroll steps
+    void reconnect(); // Set the display to standby, then immediately wake it again (hopefully behaves like a reset)
     uint16_t scbCursor = 0; // a helper associated with the main scrollertext buffer but placed here for convenience
     Max72xxPanel *matrix; // the matrix driver class
     uint8_t _hell = 0; // brightness level storage

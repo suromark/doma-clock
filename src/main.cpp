@@ -52,6 +52,7 @@ void doScroller();
 void doScrollerLineChange();
 void increaseTime();
 void decreaseTime();
+void doReconnect();
 myLongtime sanitizeTime(myLongtime t);
 
 #include "Chronos.h" // this includes also timelib.h
@@ -185,6 +186,8 @@ void loop()
 
     thisTick = millis();
 
+    doReconnect();
+
     led.check();
 
     doInput();
@@ -272,6 +275,18 @@ void doBrite()
     {
         tickBright = thisTick + 200;
         myma.SetLevel(brite);
+    }
+}
+
+// do a clock reset every minute in case one of the drivers locks up
+void doReconnect()
+{
+    static unsigned long tickCheck = 0;
+
+    if (thisTick > tickCheck)
+    {
+        tickCheck = thisTick + 5000;
+        myma.reconnect();
     }
 }
 
